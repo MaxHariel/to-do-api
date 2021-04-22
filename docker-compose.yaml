@@ -1,0 +1,11 @@
+version: '3.5'
+
+services: 
+  app:
+    build: .
+    entrypoint: ./.docker/entrypoint.sh
+    container_name: api-to-docker
+    ports: 
+      - 3000:3000
+    volumes: 
+      - .:/home/node/app  
