@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -19,8 +20,8 @@ export class TaskService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, user: any) {
-    if (user.id == createTaskDto.user.id) {
-      throw new UnauthorizedException('Doesnt create task for other user');
+    if (user.id != createTaskDto.user.id) {
+      throw new UnauthorizedException("Doesn't create task for other user");
     }
 
     const task = await this.taskRepository.save(createTaskDto);
@@ -35,11 +36,16 @@ export class TaskService {
     return `This action returns a #${id} task`;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return this.taskRepository.update(updateTaskDto.id, updateTaskDto);
+  update(id: string, updateTaskDto: UpdateTaskDto) {
+    return this.taskRepository.update(id, updateTaskDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  remove(id: string) {
+    try {
+      // Verify user's id later
+      this.taskRepository.delete(id);
+    } catch (error) {
+      throw new ForbiddenException("Don't delete task");
+    }
   }
 }
